@@ -47,6 +47,8 @@ object HttpProxy extends Logging {
       case (name, value) => message.addHeader(name, value)
     }
 
+    requestInfo.headers.filter(h => h._1 == HTTP.TARGET_HOST).foreach(h => message.addHeader("X-Forwarded-Host", h._2))
+
     val targetResponse = httpClient.execute(message)
     clientResponse.setStatus(targetResponse.getStatusLine.getStatusCode)
     targetResponse.getAllHeaders.foreach(h => clientResponse.setHeader(h.getName, h.getValue))

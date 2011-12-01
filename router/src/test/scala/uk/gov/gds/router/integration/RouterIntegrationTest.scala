@@ -239,6 +239,15 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     response.body.contains("Authorization=hope-this-gets-through") should be(true)
   }
 
+  test("Original host sent to backend as X-Forwarded-Host") {
+    val httpGet = new HttpGet(buildUrl("/route/test/incoming-headers"))
+    httpGet.addHeader("Host", "original.example.com:3100")
+    val response = Response(httpGet)
+    logger.info(response.body)
+    response.body.contains("Host=localhost:4000")
+    response.body.contains("X-Forwarded-Host=original.example.com:3100") should be(true)
+  }
+
   test("Can create full routes with more than one path element") {
     val response = post("/routes/valid/full/route", Map("application_id" -> applicationId, "route_type" -> "full"))
     response.status should be(201)
